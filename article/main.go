@@ -1,22 +1,6 @@
 package article
 
-// struct { "items": []Article, "total": 10000 }
-// struct { "items": []Article + something }
-// []Article
-// { "description": "one" }
-// { "description": null }
-//
-
-// type JSON interface {
-// 	JSON() (string, error)
-// }
-
-// type Bytes interface {
-// 	Bytes() ([]byte, error)
-// }
-// func (a *Articles) Bytes(input []byte) error {
-// 	return json.Unmarshal(input, &a)
-// }
+import "encoding/json"
 
 type Articles []Article
 
@@ -25,18 +9,22 @@ type Article struct {
 	Description string `json:"description"`
 }
 
-// func (a *Article) Bytes(input []byte) error {
-// 	return json.Unmarshal(input, &a)
-// }
+func (a Article) Valid() bool {
+	if len(a.Name) < 1 || len(a.Name) > 4 {
+		return false
+	}
 
-// func (a *Article) JSON() (string, error) {
-// 	bytes, err := json.Marshal(a)
-// 	if err != nil {
-// 		return "", err
-// 	}
-// 	return string(bytes), nil
-// }
+	if len(a.Description) < 1 || len(a.Description) > 4 {
+		return false
+	}
 
-// func (a *Article) Bytes() ([]byte, error) {
-// 	return json.Marshal(a)
-// }
+	return true
+}
+
+func (a Article) String() string {
+	bytes, err := json.Marshal(a)
+	if err != nil {
+		return ""
+	}
+	return string(bytes)
+}

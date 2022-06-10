@@ -1,11 +1,13 @@
 package handler
 
-import "net/http"
+import "github.com/gin-gonic/gin"
 
 type Handler interface {
-	List(w http.ResponseWriter, r *http.Request)
-	Read(w http.ResponseWriter, r *http.Request)
-	Add(w http.ResponseWriter, r *http.Request)
-	Update(w http.ResponseWriter, r *http.Request)
-	Remove(w http.ResponseWriter, r *http.Request)
+	List(*gin.Context)
+	Read(*gin.Context)
+	Add(*gin.Context)
+	Update(*gin.Context)
+	Remove(*gin.Context)
 }
+
+type HandlerFunc interface{}

@@ -1,32 +1,65 @@
 package handler
 
-import "net/http"
+import (
+	"encoding/json"
+	"ex/article"
+	"ex/storage"
+	"fmt"
+	"net/http"
 
-type ArticleHandler struct{}
+	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
+)
 
-func (h *ArticleHandler) List(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("list"))
+type ArticleHandler struct {
+	Redis storage.RedisStorage
 }
-func (h *ArticleHandler) Read(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("read"))
+
+func (h *ArticleHandler) List(c *gin.Context) {
+	c.JSON(http.StatusOK, "list")
 }
-func (h *ArticleHandler) Add(w http.ResponseWriter, r *http.Request) {
+
+func (h *ArticleHandler) Read(c *gin.Context) {
+	c.JSON(http.StatusOK, "read")
+}
+
+func (h *ArticleHandler) Add(c *gin.Context) {
 	// we want to validate data
+	article := article.Article{}
+
+	if err := json.NewDecoder(c.Request.Body).Decode(&article); err != nil {
+		c.JSON(http.StatusBadRequest, "error decoding json")
+		return
+	}
+
+	if !article.Valid() {
+		c.JSON(http.StatusBadRequest, "article is not valid")
+		return
+	}
+
 	// we want to get cache if cache exists return it save it
+	result, err := h.Redis.Read("one")
+	if err != redis.Nil && json.Unmarshal(result, &article) == nil {
+		c.JSON(http.StatusOK, article)
+		return
+	}
+
+	fmt.Println(string(result))
+
 	// if doesnt return get value if value is earlier than today send it to queue
 	// save data to elastic search
 	// save it to postgres as well
-	w.Write([]byte("add"))
+	c.JSON(http.StatusOK, "add")
 }
-func (h *ArticleHandler) Update(w http.ResponseWriter, r *http.Request) {
+func (h *ArticleHandler) Update(c *gin.Context) {
 	// we want to validate data
 	// we want to get cache if cache exists return it save it
 	// if doesnt return get value if value is earlier than today send it to queue
 	// save data to postgres
-	w.Write([]byte("update"))
+	c.JSON(http.StatusOK, "update")
 }
-func (h *ArticleHandler) Delete(w http.ResponseWriter, r *http.Request) {
-	// remove data from postgres
-	// remove data from elastic
-	w.Write([]byte("delete"))
+
+// Remove implements Handler
+func (*ArticleHandler) Remove(c *gin.Context) {
+	c.JSON(http.StatusOK, "Remove")
 }
